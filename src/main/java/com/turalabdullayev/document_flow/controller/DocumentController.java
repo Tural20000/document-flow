@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,6 +32,15 @@ public class DocumentController {
 
 		return ResponseEntity.ok(doc);
 
+	}
+
+	@PostMapping("/{id}/decide")
+	public ResponseEntity<Document> decide(@PathVariable Long id, @RequestParam boolean approved,
+			Authentication authentication) {
+
+		String approverUsername = authentication.getName();
+		Document updatedDoc = documentService.processDecision(id, approved, approverUsername);
+		return ResponseEntity.ok(updatedDoc);
 	}
 
 }

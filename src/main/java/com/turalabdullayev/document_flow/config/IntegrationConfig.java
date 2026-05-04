@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
+import org.springframework.integration.handler.advice.RequestHandlerRetryAdvice;
 import org.springframework.integration.mail.MailSendingMessageHandler;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.messaging.MessageChannel;
@@ -36,6 +37,12 @@ public class IntegrationConfig {
 	public MailSendingMessageHandler mailSendingMessageHandler(JavaMailSender mailSender) {
 		return new MailSendingMessageHandler(mailSender);
 
+	}
+
+	@Bean
+	public RequestHandlerRetryAdvice retryAdvice() {
+		RequestHandlerRetryAdvice advice = new RequestHandlerRetryAdvice();
+		return advice;
 	}
 
 }

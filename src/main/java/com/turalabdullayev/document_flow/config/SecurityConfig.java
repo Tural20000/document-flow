@@ -23,14 +23,12 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests(auth -> auth.requestMatchers("/api/v1/auth/**").permitAll()
-						.requestMatchers("/api/v1/documents/approve/**").hasAuthority("ROLE_APPROVER").anyRequest()
-						.authenticated())
+
+						.requestMatchers("/api/v1/documents/**").authenticated().anyRequest().authenticated())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authenticationProvider(authenticationProvider)
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
-
 	}
-
 }

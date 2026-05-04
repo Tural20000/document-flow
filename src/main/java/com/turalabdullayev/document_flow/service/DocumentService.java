@@ -11,10 +11,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.turalabdullayev.document_flow.entity.AuditLog;
 import com.turalabdullayev.document_flow.entity.Document;
 import com.turalabdullayev.document_flow.entity.DocumentStatus;
 import com.turalabdullayev.document_flow.entity.User;
 import com.turalabdullayev.document_flow.integration.DocumentGateway;
+import com.turalabdullayev.document_flow.repository.AuditLogRepository;
 import com.turalabdullayev.document_flow.repository.DocumentRepository;
 import com.turalabdullayev.document_flow.repository.UserRepository;
 
@@ -29,7 +31,7 @@ public class DocumentService {
 	private final DocumentRepository documentRepository;
 	private final UserRepository userRepository;
 	private final DocumentGateway documentGateway;
-
+	private final AuditLogRepository auditLogRepository;
 	@Value("${app.upload.dir}")
 	private String uploadDir;
 
@@ -59,5 +61,25 @@ public class DocumentService {
 		documentGateway.initiateWorkflow(savedDoc);
 
 		return savedDoc;
+	}
+
+	public Document processDecision(Long documentId, boolean approved, String approverUsername) {
+		Document document = documentRepository.findById(documentId)
+				.orElseThrow(() -> new RuntimeException("Sened tapilmadi!"));
+
+		DocumentStatus newStatus = approved ? DocumentStatus.APPROVED : DocumentStatus.REJECTED;
+		document.setStatus(newStatus);
+		document.setUpdatedAt(LocalDateTime.now());
+
+		Document uptadedDoc = documentRepository.save(document);
+
+		AuditLog logEntry = AuditLog.builder().documentId(document.getId()).action(newStatus.name())
+				.details("Sened " + (approved ? "tesdiq" : "imtina") + "edildi.").performedBy(approverUsername)
+				.timestamp(LocalDateTime.now()).build();
+
+		auditLogRepository.save(logEntry);
+		log.info("Sened ID: {} ucun qerar verildi: {}", documentId, newStatus);
+		return uptadedDoc;
+
 	}
 }
