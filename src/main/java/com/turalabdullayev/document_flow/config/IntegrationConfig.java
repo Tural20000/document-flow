@@ -33,7 +33,7 @@ public class IntegrationConfig {
 	}
 
 	@Bean
-	@ServiceActivator(inputChannel = "smtpChannel")
+	@ServiceActivator(inputChannel = "smtpChannel", adviceChain = "retryAdvice")
 	public MailSendingMessageHandler mailSendingMessageHandler(JavaMailSender mailSender) {
 		return new MailSendingMessageHandler(mailSender);
 
@@ -42,6 +42,11 @@ public class IntegrationConfig {
 	@Bean
 	public RequestHandlerRetryAdvice retryAdvice() {
 		RequestHandlerRetryAdvice advice = new RequestHandlerRetryAdvice();
+		org.springframework.retry.support.RetryTemplate retryTemplate = new org.springframework.retry.support.RetryTemplate();
+		org.springframework.retry.policy.SimpleRetryPolicy retryPolicy = new org.springframework.retry.policy.SimpleRetryPolicy();
+		retryPolicy.setMaxAttempts(3);
+		retryTemplate.setRetryPolicy(retryPolicy);
+		advice.setRetryTemplate(retryTemplate);
 		return advice;
 	}
 

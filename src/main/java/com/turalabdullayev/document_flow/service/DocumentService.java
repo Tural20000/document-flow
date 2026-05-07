@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.turalabdullayev.document_flow.entity.AuditLog;
 import com.turalabdullayev.document_flow.entity.Document;
 import com.turalabdullayev.document_flow.entity.DocumentStatus;
 import com.turalabdullayev.document_flow.entity.User;
@@ -73,12 +72,7 @@ public class DocumentService {
 
 		Document uptadedDoc = documentRepository.save(document);
 
-		AuditLog logEntry = AuditLog.builder().documentId(document.getId()).action(newStatus.name())
-				.details("Sened " + (approved ? "tesdiq" : "imtina") + "edildi.").performedBy(approverUsername)
-				.timestamp(LocalDateTime.now()).build();
-
-		auditLogRepository.save(logEntry);
-		log.info("Sened ID: {} ucun qerar verildi: {}", documentId, newStatus);
+		documentGateway.updateStatus(uptadedDoc);
 		return uptadedDoc;
 
 	}

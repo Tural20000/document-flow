@@ -10,4 +10,7 @@ public interface DocumentGateway {
 	@Gateway(requestChannel = "documentSubmissionChannel")
 	void initiateWorkflow(Document document);
 
+	@Gateway(requestChannel = "statusUpdateChannel")
+	void updateStatus(Document document);
+
 }

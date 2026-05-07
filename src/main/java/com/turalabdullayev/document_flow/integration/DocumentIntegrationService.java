@@ -33,4 +33,15 @@ public class DocumentIntegrationService {
 		return message;
 	}
 
+	@ServiceActivator(inputChannel = "statusUpdateChannel")
+	public void processStatusUpdate(Message<Document> message) {
+		Document doc = message.getPayload();
+		log.info("Sened statusu deyisdi: ID {}, Yeni Status: {}", doc.getId(), doc.getStatus());
+
+		AuditLog logEntry = AuditLog.builder().documentId(doc.getId()).action(doc.getStatus().name())
+				.details("Sened statusu " + doc.getStatus().name() + " olaraq guncellendi.")
+				.performedBy("SYSTEM_INTEGRATION").timestamp(LocalDateTime.now()).build();
+		auditLogRepository.save(logEntry);
+	}
+
 }
