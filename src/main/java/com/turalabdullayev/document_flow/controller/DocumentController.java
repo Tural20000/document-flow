@@ -1,9 +1,11 @@
 package com.turalabdullayev.document_flow.controller;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.turalabdullayev.document_flow.entity.Document;
+import com.turalabdullayev.document_flow.repository.DocumentRepository;
 import com.turalabdullayev.document_flow.service.DocumentService;
 
 import lombok.RequiredArgsConstructor;
@@ -21,10 +24,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DocumentController {
 	private final DocumentService documentService;
+	private final DocumentRepository documentRepository;
 
 	@PostMapping("/upload")
 	public ResponseEntity<Document> upload(@RequestParam("file") MultipartFile file,
-			@RequestParam("title") String title, @RequestParam("approverEamil") String approverEmail,
+			@RequestParam("title") String title, @RequestParam("approverEmail") String approverEmail,
 			Authentication authentication) throws IOException {
 
 		String username = authentication.getName();
@@ -41,6 +45,11 @@ public class DocumentController {
 		String approverUsername = authentication.getName();
 		Document updatedDoc = documentService.processDecision(id, approved, approverUsername);
 		return ResponseEntity.ok(updatedDoc);
+	}
+
+	@GetMapping
+	public ResponseEntity<List<Document>> getAllDocuments() {
+		return ResponseEntity.ok(documentRepository.findAll());
 	}
 
 }
